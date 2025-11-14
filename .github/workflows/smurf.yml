@@ -49,7 +49,7 @@ jobs:
         run: |
           smurf sdkr build $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --file Dockerfile --context ./my-static-site
           smurf sdkr scan $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          smurf sdkr push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          smurf sdkr push aws $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           
 
       - name: Deploy backend Helm chart to AWS EKS
