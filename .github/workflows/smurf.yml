@@ -72,6 +72,8 @@ jobs:
             --namespace ${{ env.NAMESPACE }} \
             --create-namespace \
             --atomic \
+            --history-max 6 \
+            --timeout 4m
             # --set image.tag=$IMAGE_TAG
 
       # - name: Deploy backend Helm chart to AWS EKS
