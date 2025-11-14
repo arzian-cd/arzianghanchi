@@ -40,10 +40,9 @@ jobs:
           ECR_REPOSITORY: clouddrove-eks-arzian-1-backend-test-environment-name
           IMAGE_TAG: ${{ github.run_id }}
         run: |
-          IMAGE="$ECR_REPOSITORY:$IMAGE_TAG"
-          smurf sdkr build $IMAGE --file DockerFile .
-          smurf sdkr scan "$IMAGE"
-          smurf sdkr push "aws $IMAGE"
+          smurf sdkr build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --file DockerFile .
+          smurf sdkr scan $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          smurf sdkr push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           
 
       - name: Deploy backend Helm chart to AWS EKS
