@@ -60,8 +60,10 @@ jobs:
           helm repo add clouddrove https://charts.clouddrove.com/ 
           helm repo update clouddrove
           export KUBECONFIG=~/.kube/config
+      - name: Smurf selm install command
+        run: |
           aws eks update-kubeconfig --name clouddrove-eks-arzian-1-test-cluster --region $AWS_REGION
-          helm upgrade --install clouddrove clouddrove/helmchart -f values.yaml -n clouddrove --create-namespace \
+          smurf selm upgrade --install clouddrove clouddrove/helmchart -f values.yaml -n clouddrove --create-namespace \
             --atomic --wait --history-max 6 --timeout 3m --debug \
             --set image.tag=$IMAGE_TAG
 
