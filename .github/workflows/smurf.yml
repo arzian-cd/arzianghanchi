@@ -40,7 +40,7 @@ jobs:
           ECR_REPOSITORY: clouddrove-eks-arzian-1-backend-test-environment-name
           IMAGE_TAG: ${{ github.run_id }}
         run: |
-          smurf sdkr build Image:$IMAGE_TAG --file DockerFile .
+          smurf sdkr build $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --file DockerFile --context ./my-static-site
           smurf sdkr scan $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           smurf sdkr push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           
