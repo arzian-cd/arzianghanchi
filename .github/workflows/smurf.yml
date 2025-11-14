@@ -57,6 +57,8 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
           AWS_REGION: us-west-2
         run: |
+          helm repo add clouddrove https://charts.clouddrove.com/ 
+          helm repo update clouddrove
           export KUBECONFIG=~/.kube/config
           aws eks update-kubeconfig --name clouddrove-eks-arzian-1-test-cluster --region $AWS_REGION
           helm upgrade --install clouddrove clouddrove/helmchart -n clouddrove --create-namespace \
