@@ -1,4 +1,4 @@
-name: Dev Backend NestJS Helm Deployment
+name: smurf Helm Deployment
 permissions:
   id-token: write
   contents: read
@@ -6,7 +6,7 @@ permissions:
 on:
   push:
     branches:
-      - dev
+      - main
   workflow_dispatch:
 jobs:
   docker:
@@ -45,15 +45,11 @@ jobs:
       - name: Deploy backend Helm chart to AWS EKS
         id: deploy-to-eks
         env:
-          IMAGE_ID: ${{ github.run_id }}
-
-          AWS_S3_REGION: ${{ secrets.AWS_S3_REGION }}
-          AWS_S3_ACCESS_KEY_ID: ${{ secrets.AWS_S3_ACCESS_KEY_ID }}
-          AWS_S3_SECRET_ACCESS_KEY: ${{ secrets.AWS_S3_SECRET_ACCESS_KEY }}
-          
+          IMAGE_TAG: ${{ github.sha }}
+          AWS_REGION: us-west-2
         run: |
           export KUBECONFIG=~/.kube/config
-          aws eks update-kubeconfig --name clouddrove-eks-arzian-1-test-cluster --region us-west-2
-          helm upgrade --install test-chart -n dev helmchart -f ./helmchart/config/override-values.yaml --create-namespace \
+          aws eks update-kubeconfig --name clouddrove-eks-arzian-1-test-cluster --region $AWS_REGION
+          helm upgrade --install my-static-site ./my-static-site-chart -n dev --create-namespace \
             --atomic --wait --history-max 6 --timeout 4m --debug \
-            --set image.tag=$IMAGE_ID \
+            --set image.tag=$IMAGE_TAG
