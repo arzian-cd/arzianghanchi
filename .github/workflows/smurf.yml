@@ -57,11 +57,9 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
           AWS_REGION: us-west-2
         run: |
-          helm repo add clouddrove https://charts.clouddrove.com/ 
-          helm repo update clouddrove
+          smurf selm repo add clouddrove https://charts.clouddrove.com/ 
+          smurf selm repo clouddrove
           export KUBECONFIG=~/.kube/config
-      - name: Smurf selm install command
-        run: |
           aws eks update-kubeconfig --name clouddrove-eks-arzian-1-test-cluster --region $AWS_REGION
           smurf selm upgrade --install clouddrove clouddrove/helmchart -f values.yaml -n clouddrove --create-namespace \
             --atomic --wait --history-max 6 --timeout 3m --debug \
