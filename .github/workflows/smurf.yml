@@ -61,9 +61,14 @@ jobs:
           smurf selm repo clouddrove
           export KUBECONFIG=~/.kube/config
           aws eks update-kubeconfig --name clouddrove-eks-arzian-1-test-cluster --region $AWS_REGION
-          smurf selm upgrade --install clouddrove clouddrove/helmchart -f values.yaml -n clouddrove --create-namespace \
-            --atomic --wait --timeout 3m --debug \
-            --set image.tag=$IMAGE_TAG
+          smurf selm upgrade --install clouddrove clouddrove/helmchart -f values.yaml -n clouddrove \
+          --create-namespace \
+          --atomic \ 
+          --wait \
+          --timeout 3m \
+          --debug \
+          --history-max 6 \
+          --set image.tag=$IMAGE_TAG
 
       # - name: Deploy backend Helm chart to AWS EKS
       #   id: deploy-to-eks
