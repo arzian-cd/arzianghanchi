@@ -60,7 +60,7 @@ jobs:
         env:
           IMAGE_TAG: ${{ github.sha }}
           AWS_REGION: us-west-2
-          RELEASE_NAME: clouddrove
+          RELEASE_NAME: clouddrove-1
           CHART: clouddrove/helmchart
           VALUES_FILE: values.yaml
           NAMESPACE: clouddrove
