@@ -1,0 +1,59 @@
+name: Dev Backend NestJS Helm Deployment
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      aws-region: us-west-2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up smurf
+        uses: clouddrove/smurf@master
+        with:
+          version: latest
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          region: "us-west-2"
+
+      - name: Build Docker Image and push AWS ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: clouddrove-eks-arzian-1-backend-test-environment-name
+          IMAGE_TAG: ${{ github.run_id }}
+        run: |
+          smurf sdkr build $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --file DockerFile .
+          smurf sdkr scan $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          smurf sdkr push aws $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG:python
+          
+
+      - name: Deploy backend Helm chart to AWS EKS
+        id: deploy-to-eks
+        env:
+          IMAGE_ID: ${{ github.run_id }}
+
+          AWS_S3_REGION: ${{ secrets.AWS_S3_REGION }}
+          AWS_S3_ACCESS_KEY_ID: ${{ secrets.AWS_S3_ACCESS_KEY_ID }}
+          AWS_S3_SECRET_ACCESS_KEY: ${{ secrets.AWS_S3_SECRET_ACCESS_KEY }}
+          
+        run: |
+          export KUBECONFIG=~/.kube/config
+          aws eks update-kubeconfig --name clouddrove-eks-arzian-1-test-cluster --region us-west-2
+          helm upgrade --install test-chart -n dev helmchart -f ./helmchart/config/override-values.yaml --create-namespace \
+            --atomic --wait --history-max 6 --timeout 4m --debug \
+            --set image.tag=$IMAGE_ID \
