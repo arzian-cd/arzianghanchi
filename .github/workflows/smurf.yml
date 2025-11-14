@@ -61,7 +61,7 @@ jobs:
           helm repo update clouddrove
           export KUBECONFIG=~/.kube/config
           aws eks update-kubeconfig --name clouddrove-eks-arzian-1-test-cluster --region $AWS_REGION
-          helm upgrade --install clouddrove clouddrove/helmchart -n clouddrove --create-namespace \
+          helm upgrade --install clouddrove clouddrove/helmchart -f values.yaml -n clouddrove --create-namespace \
             --atomic --wait --history-max 6 --timeout 3m --debug \
             --set image.tag=$IMAGE_TAG
 
