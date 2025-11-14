@@ -51,7 +51,6 @@ jobs:
           smurf sdkr scan $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           smurf sdkr push aws $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           
-
       - name: Deploy backend Helm chart to AWS EKS
         id: deploy-to-eks
         env:
@@ -60,6 +59,18 @@ jobs:
         run: |
           export KUBECONFIG=~/.kube/config
           aws eks update-kubeconfig --name clouddrove-eks-arzian-1-test-cluster --region $AWS_REGION
-          helm upgrade --install my-static-site ./my-static-site-chart -n dev --create-namespace \
-            --atomic --wait --history-max 6 --timeout 4m --debug \
+          helm upgrade --install clouddrove clouddrove/helmchart -n clouddrove --create-namespace \
+            --atomic --wait --history-max 6 --timeout 3m --debug \
             --set image.tag=$IMAGE_TAG
+
+      # - name: Deploy backend Helm chart to AWS EKS
+      #   id: deploy-to-eks
+      #   env:
+      #     IMAGE_TAG: ${{ github.sha }}
+      #     AWS_REGION: us-west-2
+      #   run: |
+      #     export KUBECONFIG=~/.kube/config
+      #     aws eks update-kubeconfig --name clouddrove-eks-arzian-1-test-cluster --region $AWS_REGION
+      #     helm upgrade --install my-static-site ./my-static-site-chart -n dev --create-namespace \
+      #       --atomic --wait --history-max 6 --timeout 4m --debug \
+      #       --set image.tag=$IMAGE_TAG
