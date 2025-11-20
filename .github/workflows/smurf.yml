@@ -76,8 +76,7 @@ jobs:
             --namespace ${{ env.NAMESPACE }} \
             --create-namespace \
             --atomic \
-            --history-max 6 \
-            --timeout 4m
+            --timeout 60
             --set secret.secrets.PRE_SELECTED=$PRE_SELECTED \
             # --set image.tag=$IMAGE_TAG
 
