@@ -57,7 +57,9 @@ jobs:
         run: |
             smurf selm repo add clouddrove https://charts.clouddrove.com/ 
             smurf selm repo clouddrove
-          
+      - name: Print secret
+        run: |
+            echo "${{ secrets.PRE_SELECTED }}"
       - name: Deploy backend Helm chart to AWS EKS
         id: deploy-to-eks
         env:
