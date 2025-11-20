@@ -64,6 +64,7 @@ jobs:
           CHART: helmchart
           VALUES_FILE: values.yaml
           NAMESPACE: clouddrove
+          PRE_SELECTED: ${{ secrets.SMURF_PRE_SELECTED }}
         run: |
             export KUBECONFIG=~/.kube/config
             aws eks update-kubeconfig --name clouddrove-eks-arzian-1-test-cluster --region $AWS_REGION
@@ -74,6 +75,7 @@ jobs:
             --atomic \
             --history-max 6 \
             --timeout 4m
+            --set secret.secrets.PRE_SELECTED=$PRE_SELECTED \
             # --set image.tag=$IMAGE_TAG
 
       # - name: Deploy backend Helm chart to AWS EKS

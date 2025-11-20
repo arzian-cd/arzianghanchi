@@ -14,11 +14,12 @@ image:
       # -- Overrides the image tag whose default is the chart version.
   tag: "latest"
 
+         
 secret:
-  enabled: true 
-    # -- secrets is a map that specifies the Secret resources that should be exposed to the main application container.           
+  enabled: true
   secrets:
-    SEC_KEY: "sec-value"
+    SECRET_KEY: "secret"
+    PRE_SELECTED: "GITHUB_SECRETS"
 
 configmap:
   enabled: true
