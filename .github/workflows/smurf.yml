@@ -24,7 +24,10 @@ jobs:
         uses: clouddrove/smurf@master
         with:
           version: latest
-
+      - name: Set up KIND cluster
+        uses: helm/kind-action@v1.8.0
+        with:
+          cluster_name: smurf-test
       # - name: Login to Amazon ECR
       #   id: login-ecr
       #   uses: aws-actions/amazon-ecr-login@v1
@@ -66,8 +69,8 @@ jobs:
           NAMESPACE: clouddrove
           PRE_SELECTED: ${{ secrets.SMURF_PRE_SELECTED }}
         run: |
-            export KUBECONFIG=~/.kube/config
-            aws eks update-kubeconfig --name clouddrove-eks-arzian-1-test-cluster --region $AWS_REGION
+            # export KUBECONFIG=~/.kube/config
+            # aws eks update-kubeconfig --name clouddrove-eks-arzian-1-test-cluster --region $AWS_REGION
             smurf selm upgrade --install ${{ env.RELEASE_NAME }} ${{ env.CHART }} \
             -f ${{ env.VALUES_FILE }} \
             --namespace ${{ env.NAMESPACE }} \
