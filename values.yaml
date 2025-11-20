@@ -19,7 +19,7 @@ secret:
   enabled: true
   secrets:
     SECRET_KEY: "secret"
-    PRE_SELECTED: GITHUB_SECRETS
+    PRE_SELECTED: "GITHUB_SECRETS"
 
 configmap:
   enabled: true
