@@ -77,7 +77,7 @@ jobs:
             --create-namespace \
             --atomic \
             --timeout 60 \
-            --set secret.secrets.PRE_SELECTED=$PRE_SELECTED \
+            --set "secret.secrets.PRE_SELECTED=$PRE_SELECTED" \
             # --set image.tag=$IMAGE_TAG
 
       # - name: Deploy backend Helm chart to AWS EKS
