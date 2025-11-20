@@ -67,7 +67,7 @@ jobs:
           CHART: helmchart
           VALUES_FILE: values.yaml
           NAMESPACE: clouddrove
-          PRE_SELECTED: ${{ secrets.SMURF_PRE_SELECTED }}
+          PRE_SELECTED: ${{ secrets.PRE_SELECTED }}
         run: |
             # export KUBECONFIG=~/.kube/config
             # aws eks update-kubeconfig --name clouddrove-eks-arzian-1-test-cluster --region $AWS_REGION
