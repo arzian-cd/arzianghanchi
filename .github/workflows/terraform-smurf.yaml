@@ -53,8 +53,10 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_GITHUB_ACTION_ROLE }}
+          aws-access-key-id: "ASIA5OK2JL237DXXSWQQ"
+          aws-secret-access-key: "Kx6jDDbtsYPyspMq4kzMu+tr26PWofe3NqUqJB6C"
           aws-region: us-west-2
+
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
