@@ -8,6 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
+  # runs-on: ubuntu-latest
   # tfsec:
   #   uses: barosaweb3/shared-workflow/.github/workflows/tfsec.yaml@main
   #   secrets:
@@ -20,9 +21,8 @@ jobs:
   #   secrets:
   #     TFLINT_GITHUB: ${{ secrets.TFLINT_GITHUB }}
 
-  dev:
-    runs-on: arc-eks-runners
-    steps:
+  runs-on: arc-eks-runners
+  steps:
       - name: Checkout project
         uses: actions/checkout@v4
 
