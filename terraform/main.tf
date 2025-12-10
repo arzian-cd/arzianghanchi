@@ -6,7 +6,7 @@ provider "aws" {
 }
 
 locals {
-  environment = "test-app"
+  environment = "arzian-test-app"
   label_order = ["name", "environment"]
 }
 
