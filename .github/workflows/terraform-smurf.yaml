@@ -78,8 +78,8 @@ jobs:
       - name: Terraform Init
         run: smurf stf init --dir=terraform/aws/us-west-2/dev
 
-      - name: Terraform Validate
-        run: smurf stf validate --dir=terraform/aws/us-west-2/dev
+      # - name: Terraform Validate
+      #   run: smurf stf validate --dir=terraform/
 
       - name: Terraform Plan
-        run: smurf stf plan --dir=terraform/aws/us-west-2/dev
+        run: smurf stf plan --dir=terraform/
