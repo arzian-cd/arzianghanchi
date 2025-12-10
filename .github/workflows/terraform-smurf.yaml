@@ -83,3 +83,10 @@ jobs:
 
       - name: Terraform Plan
         run: smurf stf plan --dir=terraform/
+
+      - name: Terraform apply 1
+        run: smurf stf apply --auto-approve --dir=terraform/
+      - name: Terraform apply 1
+        run: smurf stf apply --auto-approve --dir=terraform/
+      - name: Terraform apply 1
+        run: smurf stf destroy --auto-approve --dir=terraform/
