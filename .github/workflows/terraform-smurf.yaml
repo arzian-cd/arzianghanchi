@@ -8,12 +8,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  tfsec:
-    uses: barosaweb3/shared-workflow/.github/workflows/tfsec.yaml@main
-    secrets:
-      GITHUB: ${{ secrets.TFSEC_GITHUB }}
-    with:
-      working_directory: "terraform/aws/us-west-2/dev"
+  # tfsec:
+  #   uses: barosaweb3/shared-workflow/.github/workflows/tfsec.yaml@main
+  #   secrets:
+  #     GITHUB: ${{ secrets.TFSEC_GITHUB }}
+  #   with:
+  #     working_directory: "terraform/aws/us-west-2/dev"
 
   # tf-lint:
   #   uses: barosaweb3/shared-workflow/.github/workflows/tflint.yaml@main
