@@ -22,20 +22,25 @@ jobs:
   #     TFLINT_GITHUB: ${{ secrets.TFLINT_GITHUB }}
   terraform:
     runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      aws-region: us-west-2
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
+      # - name: Setup Node.js
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: '18'
 
-      - name: Install Missing pacakages
-        run:  |
-              sudo apt-get update --fix-missing
-              sudo apt-get install -y software-properties-common
-              sudo apt-get install -y wget gpg lsb-release
+      # - name: Install Missing pacakages
+      #   run:  |
+      #         sudo apt-get update --fix-missing
+      #         sudo apt-get install -y software-properties-common
+      #         sudo apt-get install -y wget gpg lsb-release
 
       - name: Install AWS CLI v2
         run:  |
@@ -53,21 +58,22 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ASIA5OK2JL237DXXSWQQ
-          aws-secret-access-key: Kx6jDDbtsYPyspMq4kzMu+tr26PWofe3NqUqJB6C
-          aws-region: us-west-2
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
 
 
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: ${{ inputs.terraform_version }}
+      # - name: Set up Terraform
+      #   uses: hashicorp/setup-terraform@v3
+      #   with:
+      #     terraform_version: ${{ inputs.terraform_version }}
 
-      - name: 'Terraform Format'
-        uses: 'dflook/terraform-fmt-check@v1'
-        with:
-          actions_subcommand: 'fmt'
-          path: terraform/aws/us-west-2/dev
+      # - name: 'Terraform Format'
+      #   uses: 'dflook/terraform-fmt-check@v1'
+      #   with:
+      #     actions_subcommand: 'fmt'
+      #     path: terraform/aws/us-west-2/dev
 
       - name: Terraform Init
         run: smurf stf init --dir=terraform/aws/us-west-2/dev
@@ -76,4 +82,4 @@ jobs:
         run: smurf stf validate --dir=terraform/aws/us-west-2/dev
 
       - name: Terraform Plan
-        run: smurf stf plan --var="slack_email=${{ secrets.SLACK_EMAIL }}" --dir=terraform/aws/us-west-2/dev
+        run: smurf stf plan --dir=terraform/aws/us-west-2/dev
