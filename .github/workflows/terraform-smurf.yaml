@@ -1,0 +1,77 @@
+name: Development Smurf Terraform Deployment Plan
+permissions: write-all
+on:
+  push:
+    branches: [ feat/smurf-terraform-plan ]
+    # paths:
+    #   - terraform/aws/us-west-2/dev/**
+  workflow_dispatch:
+
+jobs:
+  tfsec:
+    uses: barosaweb3/shared-workflow/.github/workflows/tfsec.yaml@main
+    secrets:
+      GITHUB: ${{ secrets.TFSEC_GITHUB }}
+    with:
+      working_directory: "terraform/aws/us-west-2/dev"
+
+  tf-lint:
+    uses: barosaweb3/shared-workflow/.github/workflows/tflint.yaml@main
+    secrets:
+      TFLINT_GITHUB: ${{ secrets.TFLINT_GITHUB }}
+
+  dev:
+    runs-on: arc-eks-runners
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Missing pacakages
+        run:  |
+              sudo apt-get update --fix-missing
+              sudo apt-get install -y software-properties-common
+              sudo apt-get install -y wget gpg lsb-release
+
+      - name: Install AWS CLI v2
+        run:  |
+              curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
+              unzip -q /tmp/awscliv2.zip -d /tmp
+              rm /tmp/awscliv2.zip
+              sudo /tmp/aws/install --update
+              rm -rf /tmp/aws/
+
+      - name: Set up smurf
+        uses: clouddrove/smurf@master
+        with:
+          version: latest
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_GITHUB_ACTION_ROLE }}
+          aws-region: us-west-2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
+
+      - name: 'Terraform Format'
+        uses: 'dflook/terraform-fmt-check@v1'
+        with:
+          actions_subcommand: 'fmt'
+          path: terraform/aws/us-west-2/dev
+
+      - name: Terraform Init
+        run: smurf stf init --dir=terraform/aws/us-west-2/dev
+
+      - name: Terraform Validate
+        run: smurf stf validate --dir=terraform/aws/us-west-2/dev
+
+      - name: Terraform Plan
+        run: smurf stf plan --var="slack_email=${{ secrets.SLACK_EMAIL }}" --dir=terraform/aws/us-west-2/dev
