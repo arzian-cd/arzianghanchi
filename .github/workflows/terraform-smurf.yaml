@@ -2,7 +2,7 @@ name: Development Smurf Terraform Deployment Plan
 permissions: write-all
 on:
   push:
-    branches: [ feat/smurf-terraform-plan ]
+    branches: [ "**" ]
     # paths:
     #   - terraform/aws/us-west-2/dev/**
   workflow_dispatch:
