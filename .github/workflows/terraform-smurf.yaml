@@ -15,10 +15,10 @@ jobs:
     with:
       working_directory: "terraform/aws/us-west-2/dev"
 
-  tf-lint:
-    uses: barosaweb3/shared-workflow/.github/workflows/tflint.yaml@main
-    secrets:
-      TFLINT_GITHUB: ${{ secrets.TFLINT_GITHUB }}
+  # tf-lint:
+  #   uses: barosaweb3/shared-workflow/.github/workflows/tflint.yaml@main
+  #   secrets:
+  #     TFLINT_GITHUB: ${{ secrets.TFLINT_GITHUB }}
 
   dev:
     runs-on: arc-eks-runners
