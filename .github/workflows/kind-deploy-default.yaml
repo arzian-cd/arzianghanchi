@@ -41,11 +41,11 @@ jobs:
               echo -e "${GREEN}🚀 Deploying: ${chart_name}${NC}"
               echo -e "${BLUE}==================================================${NC}"
 
-              echo -e "${YELLOW}▶ Helm deploy (--debug)${NC}"
+              echo -e "${YELLOW}▶ Kubernetes objects (rendered by Helm)${NC}"
               helm upgrade --install "$chart_name" "$chart" \
                 --namespace "$chart_name" \
                 --create-namespace \
-                --debug 2>&1 | tee /tmp/helm-${chart_name}.log
+                --dry-run --debug 2>&1 | grep "^Kind:" || true
 
               echo -e "${YELLOW}▶ Kubernetes objects created${NC}"
               grep "^Kind:" /tmp/helm-${chart_name}.log || true
