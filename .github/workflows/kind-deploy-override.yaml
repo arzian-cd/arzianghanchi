@@ -33,9 +33,6 @@ jobs:
             RED='\033[0;31m'
             NC='\033[0m'
 
-            echo "## 🚀 KIND Deploy (Override Values)" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-
             for chart in charts/*; do
             chart_name=$(basename "$chart")
             override="$chart/config/override-values.yaml"
@@ -46,38 +43,25 @@ jobs:
                 echo -e "${GREEN}🚀 Deploying: ${chart_name}${NC}"
                 echo -e "${BLUE}==================================================${NC}"
 
-                # Real deploy
+                echo -e "${YELLOW}▶ Helm deploy (--debug)${NC}"
                 helm upgrade --install "$chart_name" "$chart" \
                 -f "$override" \
                 --namespace "$chart_name" \
-                --create-namespace
+                --create-namespace \
+                --debug 2>&1 | tee /tmp/helm-${chart_name}.log
 
-                # Dry-run for summary
-                kinds=$(helm upgrade --install "$chart_name" "$chart" \
+                echo -e "${YELLOW}▶ Kubernetes objects (rendered by Helm)${NC}"
+                helm upgrade --install "$chart_name" "$chart" \
                 -f "$override" \
                 --namespace "$chart_name" \
                 --create-namespace \
-                --dry-run --debug 2>/dev/null | grep "^Kind:" | sort -u || true)
+                --dry-run --debug 2>&1 | grep "^kind:" | sed 's/kind:/Kind:/'
 
-                echo -e "${YELLOW}▶ Kubernetes objects rendered${NC}"
-                echo "$kinds"
-
-                # Summary
-                echo "### 📦 ${chart_name}" >> $GITHUB_STEP_SUMMARY
-                if [ -n "$kinds" ]; then
-                echo '```' >> $GITHUB_STEP_SUMMARY
-                echo "$kinds" >> $GITHUB_STEP_SUMMARY
-                echo '```' >> $GITHUB_STEP_SUMMARY
-                else
-                echo "_No Kubernetes objects rendered_" >> $GITHUB_STEP_SUMMARY
-                fi
-
+                echo -e "${GREEN}✔ Deployed ${chart_name}${NC}"
                 echo "::endgroup::"
             else
-                echo "### ⏭ ${chart_name}" >> $GITHUB_STEP_SUMMARY
-                echo "_Skipped (no override-values.yaml)_" >> $GITHUB_STEP_SUMMARY
+                echo -e "${YELLOW}⏭ Skipping ${chart_name} (no override)${NC}"
             fi
             done
-
 
 
