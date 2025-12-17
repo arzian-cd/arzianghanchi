@@ -1,0 +1,6 @@
+review:  
+  focus:
+    - helm-best-practices
+    - values.yaml consistency
+    - template indentation
+    - chart linting
