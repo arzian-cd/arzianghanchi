@@ -1,23 +1,20 @@
 name: Helm Template Run
 
+on:
+  pull_request:
+
 permissions:
   contents: read
   pull-requests: write
-
-on:
-#   push:
-  pull_request:
 
 jobs:
   helm-template:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Install Helm
-        uses: azure/setup-helm@v4
+      - uses: azure/setup-helm@v4
         with:
           version: v3.14.0
 
@@ -29,22 +26,27 @@ jobs:
           BLUE='\033[0;34m'
           YELLOW='\033[1;33m'
           RED='\033[0;31m'
-          NC='\033[0m' # No Color
+          NC='\033[0m'
 
           for chart in charts/*; do
             if [ -f "$chart/Chart.yaml" ]; then
+              chart_name=$(basename "$chart")
+
+              echo "::group::Helm template - $chart_name"
               echo -e "${BLUE}==================================================${NC}"
-              echo -e "${GREEN}🚀 Helm Chart: ${chart}${NC}"
+              echo -e "${GREEN}🚀 Helm Chart: ${chart_name}${NC}"
               echo -e "${BLUE}==================================================${NC}"
 
-              echo -e "${YELLOW}▶ Helm template (default values)${NC}"
+              echo -e "${YELLOW}▶ Template (default values)${NC}"
               helm template test "$chart"
 
               if [ -f "$chart/config/override-values.yaml" ]; then
-                echo -e "${YELLOW}▶ Helm template (override-values.yaml)${NC}"
+                echo -e "${YELLOW}▶ Template (override-values.yaml)${NC}"
                 helm template test "$chart" -f "$chart/config/override-values.yaml"
               else
                 echo -e "${RED}⚠ No override-values.yaml found${NC}"
               fi
+
+              echo "::endgroup::"
             fi
           done

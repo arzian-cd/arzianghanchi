@@ -1,0 +1,60 @@
+name: KIND Deploy (Default Values)
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  kind-deploy-default:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Install kind
+        run: |
+          curl -Lo kind https://kind.sigs.k8s.io/dl/v0.23.0/kind-linux-amd64
+          chmod +x kind
+          sudo mv kind /usr/local/bin/kind
+
+      - name: Create kind cluster
+        run: kind create cluster --name kind-default
+
+      - name: Deploy charts (default values)
+        run: |
+          set -e
+
+          GREEN='\033[0;32m'
+          BLUE='\033[0;34m'
+          YELLOW='\033[1;33m'
+          NC='\033[0m'
+
+          for chart in charts/*; do
+            if [ -f "$chart/Chart.yaml" ]; then
+              chart_name=$(basename "$chart")
+
+              echo "::group::Deploy default - $chart_name"
+              echo -e "${BLUE}==================================================${NC}"
+              echo -e "${GREEN}🚀 Deploying: ${chart_name}${NC}"
+              echo -e "${BLUE}==================================================${NC}"
+
+              echo -e "${YELLOW}▶ Helm deploy (--debug)${NC}"
+              helm upgrade --install "$chart_name" "$chart" \
+                --namespace "$chart_name" \
+                --create-namespace \
+                --debug 2>&1 | tee /tmp/helm-${chart_name}.log
+
+              echo -e "${YELLOW}▶ Kubernetes objects created${NC}"
+              grep "^Kind:" /tmp/helm-${chart_name}.log || true
+
+              echo -e "${GREEN}✔ Deployed ${chart_name}${NC}"
+              echo "::endgroup::"
+            fi
+          done
+
