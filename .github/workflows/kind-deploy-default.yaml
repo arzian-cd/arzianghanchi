@@ -1,6 +1,7 @@
 name: KIND Deploy (Default Values)
 
 on:
+  push:
   pull_request:
 
 permissions:

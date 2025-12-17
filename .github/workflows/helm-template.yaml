@@ -1,6 +1,7 @@
 name: Helm Template Run
 
 on:
+  push:
   pull_request:
 
 permissions:
