@@ -41,6 +41,12 @@ jobs:
               echo -e "${GREEN}🚀 Deploying: ${chart_name}${NC}"
               echo -e "${BLUE}==================================================${NC}"
 
+              echo -e "${YELLOW}▶ Helm deploy (--debug)${NC}"
+              helm upgrade --install "$chart_name" "$chart" \
+                --namespace "$chart_name" \
+                --create-namespace \
+                --debug 2>&1 | tee /tmp/helm-${chart_name}.log
+
               echo -e "${YELLOW}▶ Kubernetes objects (rendered by Helm)${NC}"
               helm upgrade --install "$chart_name" "$chart" \
                 --namespace "$chart_name" \
