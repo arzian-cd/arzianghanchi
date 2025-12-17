@@ -18,14 +18,10 @@ jobs:
         with:
           version: v3.14.0
 
-      - name: Install kind
-        run: |
-          curl -Lo kind https://kind.sigs.k8s.io/dl/v0.23.0/kind-linux-amd64
-          chmod +x kind
-          sudo mv kind /usr/local/bin/kind
-
-      - name: Create kind cluster
-        run: kind create cluster --name kind-default
+      - name: Set up KIND cluster
+        uses: helm/kind-action@v1.8.0
+        with:
+          cluster_name: test
 
       - name: Deploy charts (default values)
         run: |
