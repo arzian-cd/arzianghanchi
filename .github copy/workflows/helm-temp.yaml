@@ -1,0 +1,34 @@
+name: Helm Template Run
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+on: [push, pull_request]
+jobs:
+  helm-template:
+    runs-on: ubuntu-latest
+    env:
+      working_directory: ""
+      helmchart_path: "./charts/helmchart"
+      values: "./charts/helmchart/values."
+      override_values: "./charts/helmchart/config/override-values.yaml"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+    #   - name: Helm lint
+    #     run: |
+    #       helm lint ${{env.working_directory}}
+
+      - name: Helm template Default values
+        run: |
+          helm template my-release ${{env.helmchart_path}} -f ${{env.values}}
+
+      - name: Helm template override values
+        run: |
+          helm template my-release ${{env.helmchart_path}} -f ${{env.override_values}}

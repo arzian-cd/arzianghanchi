@@ -1,0 +1,40 @@
+name: Helm Template Run
+
+permissions:
+  contents: read
+  pull-requests: write
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  helm-template:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Helm template all charts
+        run: |
+          set -e
+          for chart in charts/*; do
+            if [ -f "$chart/Chart.yaml" ]; then
+              echo "--------------------------------------"
+              echo "Helm template (default): $chart"
+              helm template test "$chart"
+
+              if [ -f "$chart/config/override-values.yaml" ]; then
+                echo "Helm template (override): $chart"
+                helm template test "$chart" -f "$chart/config/override-values.yaml"
+              else
+                echo "No override-values.yaml found for $chart"
+              fi
+            fi
+          done
