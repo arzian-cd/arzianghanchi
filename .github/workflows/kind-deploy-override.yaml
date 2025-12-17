@@ -50,9 +50,6 @@ jobs:
                 --create-namespace \
                 --dry-run --debug 2>&1 | grep "^Kind:" || true
 
-                echo -e "${YELLOW}▶ Kubernetes objects created${NC}"
-                grep "^Kind:" /tmp/helm-${chart_name}.log || true
-
                 echo -e "${GREEN}✔ Deployed ${chart_name}${NC}"
                 echo "::endgroup::"
             else
