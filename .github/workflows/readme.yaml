@@ -20,7 +20,7 @@ jobs:
         run: echo "GH_TOKEN=${GITHUB_TOKEN}" >> $GITHUB_ENV
       - name: 🔐 Mark workspace as safe directory
         run: |
-          git config --global --add safe.directory /github/workspace
+          git config --global --add safe.directory /.github/workflows
 
       - name: 📦 Checkout
         uses: actions/checkout@master
