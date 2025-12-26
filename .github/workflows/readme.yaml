@@ -31,13 +31,13 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: 📝 Create readme
-        uses: 'clouddrove/github-actions@9.0.3'
-        with:
-          actions_subcommand: 'readme'
-          github_token: '${{ secrets.TOKEN }}'
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN}}
+      # - name: 📝 Create readme
+      #   uses: 'clouddrove/github-actions@9.0.3'
+      #   with:
+      #     actions_subcommand: 'readme'
+      #     github_token: '${{ secrets.TOKEN }}'
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.TOKEN}}
 
       - name: ✅ Pre-commit check errors
         uses: pre-commit/action@v3.0.1
