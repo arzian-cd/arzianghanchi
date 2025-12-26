@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 jobs:
   README:
-    uses: arzian-cd/arzianghanchi/.github/workflows/readme.yml@master
+    uses: arzian-cd/arzianghanchi/.github/workflows/readme.yaml@master
     secrets:
       TOKEN : ${{ secrets.GITHUB_TOKEN }}
       SLACK_WEBHOOK_TERRAFORM: ${{ secrets.SLACK_WEBHOOK}}
