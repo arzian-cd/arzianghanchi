@@ -1,0 +1,29 @@
+name: Test Push Action
+
+on:
+  workflow_dispatch: # Allows you to manually trigger this from the Actions tab
+
+jobs:
+  test-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required if using the default GITHUB_TOKEN
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.TOKEN }} # Important: Use the same token intended for the push
+          fetch-depth: 0              # Fetch all history for proper git operations
+
+      - name: Make a dummy change
+        run: |
+          date > test-timestamp.txt
+          echo "Updating timestamp to test push action"
+
+      - name: 🚀 Push readme
+        uses: 'clouddrove/github-actions@9.0.3'
+        with:
+          actions_subcommand: 'push'
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
