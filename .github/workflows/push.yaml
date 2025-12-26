@@ -1,5 +1,4 @@
 name: Readme Workflow
-
 on:
   push:
     branches:
@@ -7,11 +6,10 @@ on:
     paths-ignore:
       - 'README.md'
       - 'docs/**'
-  workflow_dispatch: # This allows you to click a button to test it instantly
-
+  workflow_dispatch:
 jobs:
   README:
-    # Calling the reusable workflow from clouddrove
     uses: clouddrove/github-shared-workflows/.github/workflows/readme.yml@master
     secrets:
-      TOKEN: ${{ secrets.GITHUB }}
+      TOKEN : ${{ secrets.GITHUB }}
+      SLACK_WEBHOOK_TERRAFORM: ${{ secrets.SLACK_WEBHOOK}}
