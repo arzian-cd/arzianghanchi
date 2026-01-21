@@ -6,6 +6,6 @@ on:
 
 jobs:
   pr-title-validation:
-    uses: arzian-cd/arzianghanchi/.github/workflows/pr-title-validation.yml@main
+    uses: arzian-cd/arzianghanchi/.github/workflows/shared-workflow-pr-title-check.yaml@master
     with:
       regex: '^(Feat:|feat:|Fix:|fix:|Docs:|docs:|Test:|test:|ci:|refactor:|chore:|revert:) '
