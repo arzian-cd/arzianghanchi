@@ -20,76 +20,55 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up smurf
-        uses: clouddrove/smurf@master
+      # - name: Set up smurf
+      #   uses: clouddrove/smurf@master
+      #   with:
+      #     version: latest
+
+      - name: Setup Smurf
+        uses: clouddrove/smurf@fix/selm-upgrade
         with:
-          version: latest
+          version: v0.1.4-Beta
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4.3.0
+        with:
+          version: "latest"
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: "latest"
+
       - name: Set up KIND cluster
         uses: helm/kind-action@v1.8.0
         with:
           cluster_name: smurf-test
-      # - name: Login to Amazon ECR
-      #   id: login-ecr
-      #   uses: aws-actions/amazon-ecr-login@v1
-      #   env:
-      #     AWS_REGION: us-east-1
-      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      # - name: Install Trivy
-      #   run: |
-      #     sudo apt-get install -y wget apt-transport-https gnupg lsb-release
-      #     wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
-      #     echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
-      #     sudo apt-get update
-      #     sudo apt-get install -y trivy
-
-      # - name: Build Docker Image and push AWS ECR
-      #   env:
-      #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      #     ECR_REPOSITORY: clouddrove-eks-arzian-1-backend-test-environment-name
-      #     IMAGE_TAG: ${{ github.run_id }}
-      #   run: |
-      #     smurf sdkr build $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --file Dockerfile --context ./my-static-site
-      #     smurf sdkr scan $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-      #     smurf sdkr push aws $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
       - name: Add Helm repo and update
         run: |
             smurf selm repo add clouddrove https://charts.clouddrove.com/ 
             smurf selm repo clouddrove
-      - name: Print secret
-        run: |
-            echo "${{ secrets.PRE_SELECTED }}"
-      - name: Deploy backend Helm chart to AWS EKS
+
+      - name: Deploy helmchart
         id: deploy-to-eks
         env:
-          IMAGE_TAG: ${{ github.sha }}
           AWS_REGION: us-west-2
-          RELEASE_NAME: clouddrove
-          CHART: helmchart
-          VALUES_FILE: values.yaml
-          NAMESPACE: clouddrove
-          PRE_SELECTED: ${{ secrets.PRE_SELECTED }}
-        run: |
-            # export KUBECONFIG=~/.kube/config
-            # aws eks update-kubeconfig --name clouddrove-eks-arzian-1-test-cluster --region $AWS_REGION
-            smurf selm upgrade --install ${{ env.RELEASE_NAME }} ${{ env.CHART }} \
-            -f ${{ env.VALUES_FILE }} \
-            --namespace ${{ env.NAMESPACE }} \
-            --create-namespace \
-            --atomic \
-            --timeout 60 \
-            --set-literal "secret.secrets.PRE_SELECTED=$PRE_SELECTED"
-            # --set image.tag=$IMAGE_TAG
+          RELEASE_NAME: Clouddrove-nginx
+          CHART: clouddrove/helmchart
+          VALUES_FILE: "./values.yaml"
+          NAMESPACE: dev
 
-      # - name: Deploy backend Helm chart to AWS EKS
-      #   id: deploy-to-eks
-      #   env:
-      #     IMAGE_TAG: ${{ github.sha }}
-      #     AWS_REGION: us-west-2
-      #   run: |
-      #     export KUBECONFIG=~/.kube/config
-      #     aws eks update-kubeconfig --name clouddrove-eks-arzian-1-test-cluster --region $AWS_REGION
-      #     helm upgrade --install my-static-site ./my-static-site-chart -n dev --create-namespace \
-      #       --atomic --wait --history-max 6 --timeout 4m --debug \
-      #       --set image.tag=$IMAGE_TAG
+        run: |
+          smurf selm upgrade --install ${{ env.RELEASE_NAME }} ${{ env.CHART }} \
+          -f ${{ env.VALUES_FILE }} \
+          --namespace ${{ env.NAMESPACE }} \
+          --create-namespace \
+          --atomic \
+          --wait \
+          --timeout 300 \
+          --debug \
+
+      - name: helm list 
+        run: |
+            helm history ${{ env.RELEASE_NAME }} -n dev 
