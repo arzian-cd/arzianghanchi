@@ -66,7 +66,7 @@ jobs:
         id: deploy-to-eks
         env:
           AWS_REGION: us-west-2
-          RELEASE_NAME: Clouddrove-nginx
+          RELEASE_NAME: nginx
           CHART: clouddrove/helmchart
           VALUES_FILE: "./values.yaml"
           NAMESPACE: dev
