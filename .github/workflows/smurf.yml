@@ -104,4 +104,4 @@ jobs:
         env:
           RELEASE_NAME: nginx
         run: |
-            helm history ${{ env.RELEASE_NAME }} -n dev 
+            helm history nginx -n dev 
