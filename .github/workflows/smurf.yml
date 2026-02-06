@@ -84,3 +84,24 @@ jobs:
       - name: helm list 
         run: |
             helm history ${{ env.RELEASE_NAME }} -n dev 
+
+      - name: Helm upgrade
+        env:
+          RELEASE_NAME: nginx
+          CHART: clouddrove/helmchart
+          VALUES_FILE: "./values.yaml"
+          NAMESPACE: dev
+        run: |
+          smurf selm upgrade --install ${{ env.RELEASE_NAME }} ${{ env.CHART }} \
+          -f ${{ env.VALUES_FILE }} \
+            --namespace ${{ env.NAMESPACE }} \
+            --wait \
+            --timeout 10m &
+          sleep 5
+          exit 1
+
+      - name: helm list
+        env:
+          RELEASE_NAME: nginx
+        run: |
+            helm history ${{ env.RELEASE_NAME }} -n dev 
