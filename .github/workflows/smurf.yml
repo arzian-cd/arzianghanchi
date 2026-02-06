@@ -25,10 +25,19 @@ jobs:
       #   with:
       #     version: latest
 
-      - name: Setup Smurf
-        uses: clouddrove/smurf@fix/selm-upgrade
-        with:
-          version: v0.1.4-Beta
+      # - name: Setup Smurf
+      #   uses: clouddrove/smurf@fix/selm-upgrade
+      #   with:
+      #     version: v0.1.4-Beta
+
+      - name: Install Smurf manually
+        run: |
+          VERSION=v0.1.4-Beta
+          curl -fL \
+            https://github.com/clouddrove/smurf/releases/download/${VERSION}/smurf-linux-amd64 \
+            -o smurf
+          chmod +x smurf
+          sudo mv smurf /usr/local/bin/smurf
 
       - name: Install Helm
         uses: azure/setup-helm@v4.3.0
