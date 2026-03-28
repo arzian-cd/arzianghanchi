@@ -1,0 +1,166 @@
+name: Helm Drift Detection
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+on:
+  workflow_dispatch:
+
+jobs:
+  dev-barosa-cluster:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      aws-region: us-east-1
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Missing pacakages
+        run:  |
+              sudo apt-get update --fix-missing
+              sudo apt-get install -y software-properties-common
+              sudo apt-get install -y wget gpg lsb-release
+
+      - name: Install AWS CLI v2
+        run:  |
+              curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
+              unzip -q /tmp/awscliv2.zip -d /tmp
+              rm /tmp/awscliv2.zip
+              sudo /tmp/aws/install --update
+              rm -rf /tmp/aws/
+ 
+      - name: Install Helm
+        uses: azure/setup-helm@v4.3.0
+        with:
+          version: "latest"
+
+      - name: Install Helm plugin
+        run: |
+          helm plugin install https://github.com/nikhilsbhat/helm-drift --verify=false
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: "latest"
+
+      - name: Set up KIND cluster
+        uses: helm/kind-action@v1.8.0
+        with:
+          cluster_name: test
+
+    #   - name: Configure AWS
+    #     uses: aws-actions/configure-aws-credentials@v4
+    #     with:
+    #       aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+    #       aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+    #       aws-session-token: ${{ env.AWS_SESSION_TOKEN }}
+    #       aws-region: ${{env.aws-region}}
+
+    #   - name: Configure AWS CLI
+    #     uses: aws-actions/configure-aws-credentials@v4
+    #     with:
+    #       role-to-assume: ${{ secrets.AWS_GITHUB_OIDC_ROLE }}
+    #       role-session-name: github-actions-cicd
+    #       aws-region: us-west-2
+
+    #   - name: Configure kubeconfig
+    #     run: |
+    #       mkdir -p ~/.kube
+    #       aws eks update-kubeconfig --name dev-barosa-eks-cluster --region us-west-2 --kubeconfig ~/.kube/dev_config
+    #     shell: bash
+      - name: Install Velero CLI
+        run: |
+          curl -L https://github.com/vmware-tanzu/velero/releases/download/v1.13.2/velero-v1.13.2-linux-amd64.tar.gz | tar -xz
+          sudo mv velero-v1.13.2-linux-amd64/velero /usr/local/bin/velero
+
+      - name: Set KUBECONFIG for later steps
+        run: echo "KUBECONFIG=$HOME/.kube/dev_config" >> $GITHUB_ENV
+
+      - name: Create Velero Backup Dev
+        run: |
+          velero backup create daily-backup-$(date +%Y%m%d) --wait
+
+#       - name: Send Slack Notification Dev
+#         if: failure()
+#         uses: slackapi/slack-github-action@v2.1.1
+#         with:
+#           webhook-type: "incoming-webhook"
+#           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+#           payload: |
+#             {
+#               "text": "Project: Barosa ❌ Velero Backup Failed in dev-barosa-eks-cluster.\nRun: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+#             }
+
+#   drift-detect-prod:
+#     runs-on: arc-eks-runners
+#     environment: production
+#     steps:
+#       - name: Checkout Code
+#         uses: actions/checkout@v4
+
+#       - name: Install Missing pacakages
+#         run:  |
+#               sudo apt-get update --fix-missing
+#               sudo apt-get install -y software-properties-common
+#               sudo apt-get install -y wget gpg lsb-release
+
+#       - name: Install AWS CLI v2
+#         run:  |
+#               curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
+#               unzip -q /tmp/awscliv2.zip -d /tmp
+#               rm /tmp/awscliv2.zip
+#               sudo /tmp/aws/install --update
+#               rm -rf /tmp/aws/
+ 
+#       - name: Install Helm
+#         uses: azure/setup-helm@v4.3.0
+#         with:
+#           version: "latest"
+
+#       - name: Install Helm plugin
+#         run: |
+#           helm plugin install https://github.com/nikhilsbhat/helm-drift --verify=false
+
+#       - name: Install kubectl
+#         uses: azure/setup-kubectl@v4
+#         with:
+#           version: "latest"
+
+#       - name: Configure AWS CLI
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           role-to-assume: ${{ secrets.AWS_GITHUB_OIDC_ROLE }}
+#           role-session-name: github-prod-nestjs-helm
+#           aws-region: us-west-2
+
+#       - name: Velero Backup PROD
+#         id: velero_backup_prod
+#         run: |
+#           export KUBECONFIG=~/.kube/prod_config
+#           aws eks update-kubeconfig --name prod-barosa-eks-cluster --region us-west-2        
+#           echo "🔍 Checking for Helm drift for backend-nestjs"
+#           drift_output=$(helm drift run backend-nestjs -n prod --from-release)
+#           echo "$drift_output"
+
+#           echo "Using kubectl at $(which kubectl)"
+#           kubectl version --client=true --output=yaml
+
+#           if [ "$drifts" -gt 0 ]; then
+#             echo "❌ Drift detected!"
+#             exit 1
+#           else
+#             echo "✅ No drift detected."
+#           fi
+#       - name: Send Slack Notification Prod
+#         if: failure()
+#         uses: slackapi/slack-github-action@v2.1.1
+#         with:
+#           webhook-type: "incoming-webhook"
+#           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+#           payload: |
+#             {
+#               "text": "Project: Barosa ❌ Velero Backup Failed in prod-barosa-eks-cluster.\nRun: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+#             }
